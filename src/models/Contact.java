@@ -1,6 +1,6 @@
 package models;
 
-public class Contato {
+public class Contact {
 	private String firstName;
 	private String lastName;
 	private String phone;
@@ -8,7 +8,7 @@ public class Contato {
 	
 	
 	
-	public Contato(String firstName, String lastName, String phone, String email) {
+	public Contact(String firstName, String lastName, String phone, String email) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -16,14 +16,14 @@ public class Contato {
 		this.email = email;
 	}
 	
-	public Contato(String firstName, String lastName, String phone) {
+	public Contact(String firstName, String lastName, String phone) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.phone = phone;
 	}
 	
-	public Contato(String firstName, String lastName) {
+	public Contact(String firstName, String lastName) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -66,6 +66,9 @@ public class Contato {
 		String s = firstName+ " "+lastName;
 		if(phone!=null) {
 			s+= " - "+ phone;
+		}
+		if(email!=null) {
+			s+= " - "+ email;
 		}
 		return super.toString();
 	}
