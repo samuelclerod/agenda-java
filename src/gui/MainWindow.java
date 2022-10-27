@@ -14,6 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import models.Contact;
+
 public class MainWindow extends JFrame implements ActionListener {
 
 	protected DefaultListModel listModel;
@@ -64,13 +66,15 @@ public class MainWindow extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(this, "Selecione um item para editar");
 			return;
 		}
-		String value = list.getSelectedValue().toString();
+		Contact contato = (Contact) list.getSelectedValue();
 		
-		String name = JOptionPane.showInputDialog(this, "Nome do Contato", value);
-
-		if(name == null || name.trim()=="") return ;
+		ContactDialog dialog = new ContactDialog(this, contato); 
 		
-		listModel.setElementAt(name, index);
+		if(dialog.getContact() == null ) return ;
+		
+		listModel.setElementAt(dialog.getContact(), index);
+		
+		dialog.dispose();
 	}
 
 	private void removeItem() {
@@ -83,10 +87,14 @@ public class MainWindow extends JFrame implements ActionListener {
 	}
 
 	private void insertItem() {
-		String name = JOptionPane.showInputDialog(this, "Nome do Contato");
-		if (name == null || name.trim().equals(""))
+		ContactDialog dialog = new ContactDialog(this, null);
+		System.out.println("Fechou a Janela");
+		Contact c = dialog.getContact();
+		dialog.dispose();
+		if(c==null) {
 			return;
-		listModel.addElement(name);
+		}
+		listModel.addElement(c);		
 	}
 
 	@Override

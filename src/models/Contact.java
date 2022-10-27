@@ -6,7 +6,7 @@ public class Contact {
 	private String phone;
 	private String email;
 	
-	
+	public Contact() {}
 	
 	public Contact(String firstName, String lastName, String phone, String email) {
 		super();
@@ -64,13 +64,13 @@ public class Contact {
 	@Override
 	public String toString() {
 		String s = firstName+ " "+lastName;
-		if(phone!=null) {
+		if(phone!=null && !phone.trim().equals("")) {
 			s+= " - "+ phone;
 		}
-		if(email!=null) {
+		if(email!=null && !email.trim().equals("")) {
 			s+= " - "+ email;
 		}
-		return super.toString();
+		return s;
 	}
 	
 }
