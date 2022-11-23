@@ -1,6 +1,7 @@
-package domain;
+package models;
 
 public class Contact {
+	private int id; 
 	private String firstName;
 	private String lastName;
 	private String phone;
@@ -14,6 +15,10 @@ public class Contact {
 		this.lastName = lastName;
 		this.phone = phone;
 		this.email = email;
+	}
+	public Contact(int id, String firstName, String lastName, String phone, String email) {
+		this(firstName, lastName, phone, email);
+		setId(id);
 	}
 	
 	public Contact(String firstName, String lastName, String phone) {
@@ -60,10 +65,18 @@ public class Contact {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	public int getId() {
+		return id;
+	}
 
 	@Override
 	public String toString() {
-		String s = firstName+ " "+lastName;
+		String s = id+" "+ firstName+ " "+lastName;
 		if(phone!=null && !phone.trim().equals("")) {
 			s+= " - "+ phone;
 		}

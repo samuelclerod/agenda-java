@@ -1,4 +1,4 @@
-package apresentation;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -14,15 +14,19 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import domain.Contact;
+import models.Contact;
+import persistence.ContactRepository;
+import persistence.ContactRepositorySQLite;
 
 public class MainWindow extends JFrame implements ActionListener {
 
 	protected DefaultListModel listModel;
 	protected JList list;
 	protected JButton btnInsert, btnEdit, btnRemove, btnClose;
+	private ContactRepository repository;
 
 	public MainWindow() {
+		repository = new ContactRepositorySQLite();
 		setSize(400, 180);
 		setResizable(false);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -56,8 +60,17 @@ public class MainWindow extends JFrame implements ActionListener {
 
 	private JScrollPane createList() {
 		listModel = new DefaultListModel();
+		populate();
 		list = new JList(listModel);
 		return new JScrollPane(list);
+	}
+	
+	private void populate() {
+		Contact[] contacts = repository.findAll();
+		listModel.removeAllElements();
+		for(Contact c: contacts) {
+			listModel.addElement(c);
+		}
 	}
 
 	private void editItem() {
@@ -83,6 +96,8 @@ public class MainWindow extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(this, "Selecione um item para remover");
 			return;
 		}
+		Contact c = (Contact) list.getSelectedValue();
+		repository.remove(c.getId());
 		listModel.removeElementAt(index);
 	}
 
@@ -94,7 +109,8 @@ public class MainWindow extends JFrame implements ActionListener {
 		if(c==null) {
 			return;
 		}
-		listModel.addElement(c);		
+		repository.insert(c);
+		populate();
 	}
 
 	@Override

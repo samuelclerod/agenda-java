@@ -1,4 +1,4 @@
-package apresentation;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import domain.Contact;
+import models.Contact;
 
 public class ContactDialog extends JDialog implements ActionListener {
 
