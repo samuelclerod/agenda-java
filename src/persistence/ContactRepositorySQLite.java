@@ -26,15 +26,12 @@ public class ContactRepositorySQLite implements ContactRepository {
 		try {
 			con = DriverManager.getConnection(Constants.URL);
 			prepStmt = con.prepareStatement(sql);
-
 			prepStmt.setString(1, contact.getFirstName());
 			prepStmt.setString(2, contact.getLastName());
 			prepStmt.setString(3, contact.getEmail());
 			prepStmt.setString(4, contact.getPhone());
 			prepStmt.executeUpdate();
 			prepStmt.close();
-			
-			
 		}catch(SQLException ex) {
 			ex.printStackTrace();
 		}
@@ -106,7 +103,25 @@ public class ContactRepositorySQLite implements ContactRepository {
 
 	@Override
 	public void update(Contact contact) {
-		// TODO Auto-generated method stub
+		Connection con;
+		PreparedStatement prepStmt;
+		Statement stmt;
+		String sql = "UPDATE Contatos first_name=?, last_name=?, email=?, phone=? "
+				+ "WHERE id=?";
+		try {
+			con = DriverManager.getConnection(Constants.URL);
+			prepStmt = con.prepareStatement(sql);
+			prepStmt.setString(1, contact.getFirstName());
+			prepStmt.setString(2, contact.getLastName());
+			prepStmt.setString(3, contact.getEmail());
+			prepStmt.setString(4, contact.getPhone());
+			prepStmt.setInt(5, contact.getId());
+			prepStmt.executeUpdate();
+			prepStmt.close();
+			con.close();
+		}catch(SQLException ex) {
+			ex.printStackTrace();
+		}           
 
 	}
 

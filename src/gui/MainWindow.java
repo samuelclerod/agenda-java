@@ -24,7 +24,7 @@ public class MainWindow extends JFrame implements ActionListener {
 	protected JList list;
 	protected JButton btnInsert, btnEdit, btnRemove, btnClose;
 	private ContactRepository repository;
-
+ 
 	public MainWindow() {
 		repository = new ContactRepositorySQLite();
 		setSize(400, 180);
@@ -64,49 +64,54 @@ public class MainWindow extends JFrame implements ActionListener {
 		list = new JList(listModel);
 		return new JScrollPane(list);
 	}
-	
+
 	private void populate() {
 		Contact[] contacts = repository.findAll();
 		listModel.removeAllElements();
-		for(Contact c: contacts) {
+		for (Contact c : contacts) {
 			listModel.addElement(c);
 		}
 	}
 
 	private void editItem() {
-		int index = list.getSelectedIndex(); 
+		int index = list.getSelectedIndex();
 		if (index < 0) {
 			JOptionPane.showMessageDialog(this, "Selecione um item para editar");
 			return;
 		}
 		Contact contato = (Contact) list.getSelectedValue();
-		
-		ContactDialog dialog = new ContactDialog(this, contato); 
-		
-		if(dialog.getContact() == null ) return ;
-		
+		ContactDialog dialog = new ContactDialog(this, contato);
+		if (dialog.getContact() == null)
+			return;
 		listModel.setElementAt(dialog.getContact(), index);
-		
 		dialog.dispose();
 	}
 
 	private void removeItem() {
-		int index = list.getSelectedIndex(); 
+		int index = list.getSelectedIndex();
 		if (index < 0) {
 			JOptionPane.showMessageDialog(this, "Selecione um item para remover");
 			return;
 		}
 		Contact c = (Contact) list.getSelectedValue();
-		repository.remove(c.getId());
-		listModel.removeElementAt(index);
+		int response = JOptionPane.showConfirmDialog(
+				this, 
+				"Tem certeza que quer apagar esse contato?",
+				"Remover Contato",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE
+		);
+		if(response==JOptionPane.YES_OPTION) {			
+			repository.remove(c.getId());
+			listModel.removeElementAt(index);
+		}
 	}
 
 	private void insertItem() {
 		ContactDialog dialog = new ContactDialog(this, null);
-		System.out.println("Fechou a Janela");
 		Contact c = dialog.getContact();
 		dialog.dispose();
-		if(c==null) {
+		if (c == null) {
 			return;
 		}
 		repository.insert(c);
