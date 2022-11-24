@@ -9,10 +9,13 @@ import java.awt.event.ActionListener;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.tools.Diagnostic;
 
 import models.Contact;
 import persistence.ContactRepository;
@@ -22,12 +25,13 @@ public class MainWindow extends JFrame implements ActionListener {
 
 	protected DefaultListModel listModel;
 	protected JList list;
-	protected JButton btnInsert, btnEdit, btnRemove, btnClose;
+	protected JTextField searchField;
+	protected JButton btnInsert, btnEdit, btnRemove, btnClose, btnSearch, btnClear;
 	private ContactRepository repository;
- 
+
 	public MainWindow() {
 		repository = new ContactRepositorySQLite();
-		setSize(400, 180);
+		setSize(480, 220);
 		setResizable(false);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
@@ -36,8 +40,25 @@ public class MainWindow extends JFrame implements ActionListener {
 		JPanel buttons = createPanelButtons();
 		JPanel sidePanel = new JPanel(new FlowLayout());
 		sidePanel.add(buttons);
-		add(scroll);
 		add("East", sidePanel);
+		add("North", createSearchPanel());
+		add(scroll);
+	}
+
+	private JPanel createSearchPanel() {
+		JPanel panel = new JPanel();
+		searchField = new JTextField(25);
+		searchField.addActionListener(this);
+		btnSearch = new JButton("🔎");
+		btnClear = new JButton("❌");
+		btnSearch.addActionListener(this);
+		btnClear.addActionListener(this);
+		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		panel.add(new JLabel("Buscar: "));
+		panel.add(searchField);
+		panel.add(btnSearch);
+		panel.add(btnClear);
+		return panel;
 	}
 
 	private JPanel createPanelButtons() {
@@ -64,13 +85,17 @@ public class MainWindow extends JFrame implements ActionListener {
 		list = new JList(listModel);
 		return new JScrollPane(list);
 	}
-
-	private void populate() {
-		Contact[] contacts = repository.findAll();
+	
+	private void populate(Contact[] contacts) {
 		listModel.removeAllElements();
 		for (Contact c : contacts) {
 			listModel.addElement(c);
 		}
+	}
+
+	private void populate() {
+		Contact[] contacts = repository.findAll();
+		populate(contacts);
 	}
 
 	private void editItem() {
@@ -83,8 +108,9 @@ public class MainWindow extends JFrame implements ActionListener {
 		ContactDialog dialog = new ContactDialog(this, contato);
 		if (dialog.getContact() == null)
 			return;
-		listModel.setElementAt(dialog.getContact(), index);
+		repository.update(dialog.getContact());
 		dialog.dispose();
+		this.populate();
 	}
 
 	private void removeItem() {
@@ -94,14 +120,9 @@ public class MainWindow extends JFrame implements ActionListener {
 			return;
 		}
 		Contact c = (Contact) list.getSelectedValue();
-		int response = JOptionPane.showConfirmDialog(
-				this, 
-				"Tem certeza que quer apagar esse contato?",
-				"Remover Contato",
-				JOptionPane.YES_NO_OPTION,
-				JOptionPane.WARNING_MESSAGE
-		);
-		if(response==JOptionPane.YES_OPTION) {			
+		int response = JOptionPane.showConfirmDialog(this, "Tem certeza que quer apagar esse contato?",
+				"Remover Contato", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+		if (response == JOptionPane.YES_OPTION) {
 			repository.remove(c.getId());
 			listModel.removeElementAt(index);
 		}
@@ -118,19 +139,37 @@ public class MainWindow extends JFrame implements ActionListener {
 		populate();
 	}
 
+	private void searchItem() {
+		String search = searchField.getText().trim();
+		if(search=="") { 
+			populate();
+			return;
+		}
+		Contact[] contacts = repository.findBy("*", search);
+		populate(contacts);
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		JButton button = (JButton) e.getSource();
-		if (button == btnInsert) {
+		if (e.getSource() == btnInsert) {
 			insertItem();
 			return;
 		}
-		if (button == btnRemove) {
+		if (e.getSource() == btnRemove) {
 			removeItem();
 			return;
 		}
-		if (button == btnEdit) {
+		if (e.getSource() == btnEdit) {
 			editItem();
+			return;
+		}
+		if (e.getSource() == btnSearch || e.getSource() == searchField) {
+			searchItem();
+			return;
+		}
+		if(e.getSource() == btnClear) {
+			searchField.setText("");
+			populate();
 			return;
 		}
 		System.exit(0);

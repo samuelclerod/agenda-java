@@ -19,7 +19,6 @@ public class ContactRepositorySQLite implements ContactRepository {
 	public void insert(Contact contact) {
 		Connection con;
 		PreparedStatement prepStmt;
-		Statement stmt;
 		String sql = "INSERT INTO "
 				+ "Contatos (first_name, last_name, email, phone) "
 				+ "VALUES (?, ?, ?, ?)";
@@ -55,8 +54,59 @@ public class ContactRepositorySQLite implements ContactRepository {
 
 	@Override
 	public Contact[] findBy(String fieldName, String value) {
-		// TODO Auto-generated method stub
-		return null;
+		Connection con;
+		PreparedStatement stmt;
+		String sql = "SELECT * FROM Contatos WHERE ";
+		if(fieldName.equals("*")) {
+			sql += "first_name like ? OR last_name like ? OR email like ? OR phone like ?";
+		} else  {
+			sql +=fieldName+" like ?";
+		}
+		
+		try {
+
+			con = DriverManager.getConnection(Constants.URL);
+			stmt = con.prepareStatement(sql);
+			
+			if(!fieldName.equals("*")) {
+				stmt.setString(1, "%"+value+"%");
+			}else {
+				for (int i = 1; i <= 4; i++) {
+					stmt.setString(i, "%"+value+"%");
+				}
+			}
+			
+			ResultSet rs = stmt.executeQuery();
+			int count = 0;
+			while (rs.next()) {
+				count++;
+			}
+
+			Contact[] contacts = new Contact[count];
+			rs = stmt.executeQuery(); // rs.beforeFirst();
+			int index = 0;
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String fname = rs.getString("first_name");
+				String lname = rs.getString("last_name");
+				String email = rs.getString("email");
+				String phone = rs.getString("phone");
+
+				Contact c = new Contact(id, fname, lname, phone, email);
+				contacts[index] = c;
+				index++;
+			}
+			rs.close();
+			stmt.close();
+			con.close();
+
+			return contacts;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			return new Contact[0];
+		}
 	}
 
 	@Override
@@ -105,8 +155,7 @@ public class ContactRepositorySQLite implements ContactRepository {
 	public void update(Contact contact) {
 		Connection con;
 		PreparedStatement prepStmt;
-		Statement stmt;
-		String sql = "UPDATE Contatos first_name=?, last_name=?, email=?, phone=? "
+		String sql = "UPDATE Contatos SET first_name=?, last_name=?, email=?, phone=? "
 				+ "WHERE id=?";
 		try {
 			con = DriverManager.getConnection(Constants.URL);
